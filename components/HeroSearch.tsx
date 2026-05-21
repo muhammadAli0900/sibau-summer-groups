@@ -88,9 +88,9 @@ export default function HeroSearch() {
         )}
       </div>
 
-      {/* Dropdown — z-[100] floats above all page content */}
+      {/* Dropdown */}
       {open && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-slate-900 border border-slate-700/80 rounded-xl shadow-2xl shadow-black/60 z-[100] max-h-[400px] overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-slate-900 border border-slate-700/80 rounded-xl shadow-2xl shadow-black/60 z-[9999] max-h-[380px] overflow-y-auto">
           {/* Loading */}
           {loading && (
             <div className="p-4 text-center text-slate-400 text-sm">Searching...</div>

@@ -41,7 +41,7 @@ export default async function HomePage() {
             Sukkur IBA University &mdash; Summer 2026
           </div>
           <h1
-            className="text-3xl sm:text-5xl font-black text-white mb-4 leading-tight"
+            className="text-3xl sm:text-5xl font-extrabold mb-4 leading-tight bg-gradient-to-b from-white to-slate-300 bg-clip-text text-transparent"
             style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
           >
             Find Your Summer
@@ -58,15 +58,15 @@ export default async function HomePage() {
       <HowItWorks />
 
       {/* Programs */}
-      <section id="programs" className="py-16 px-4">
+      <section id="programs" className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <h2
-            className="text-2xl sm:text-3xl font-black text-white mb-2"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            className="text-2xl sm:text-3xl font-extrabold text-white mb-2"
+            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800 }}
           >
             Browse by Program
           </h2>
-          <p className="text-slate-500 text-sm mb-8">Select your program to find course groups</p>
+          <p className="text-slate-500 text-sm mb-10">Select your program to find course groups</p>
           <ProgramCards programs={programs} />
         </div>
       </section>

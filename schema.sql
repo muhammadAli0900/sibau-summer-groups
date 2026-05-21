@@ -461,6 +461,12 @@ BEGIN
 END $$;
 
 -- ============================================================
+-- Add manual entry columns to groups table
+-- ============================================================
+ALTER TABLE groups ADD COLUMN IF NOT EXISTS is_manual boolean DEFAULT false;
+ALTER TABLE groups ADD COLUMN IF NOT EXISTS course_name_manual text;
+
+-- ============================================================
 -- BS Media & Communications Courses
 -- ============================================================
 DO $$
@@ -509,4 +515,106 @@ BEGIN
     (prog_id, 'MC-617', 'Research Project and Internship',                 8, '3'),
     (prog_id, 'MC-618', 'Academic Writing and Professional Writing',       8, '3'),
     (prog_id, 'MC-619', 'Regional Mass Media',                             8, '3');
+END $$;
+
+-- ============================================================
+-- BS Computer Science (Old Schema) Program
+-- ============================================================
+INSERT INTO programs (code, name, color) VALUES
+  ('BSCS-OLD', 'BS Computer Science (Old Schema)', '#6366f1')
+ON CONFLICT (code) DO NOTHING;
+
+DO $$
+DECLARE prog_id UUID;
+BEGIN
+  SELECT id INTO prog_id FROM programs WHERE code = 'BSCS-OLD';
+
+  INSERT INTO courses (program_id, code, title, semester_number, credit_hours) VALUES
+    -- Semester 1
+    (prog_id, 'CSC-101',    'Introduction to ICT',                         1, '3'),
+    (prog_id, 'CSC-102',    'Programming Fundamentals',                    1, '4'),
+    (prog_id, 'ENG-101',    'English Composition & Comprehension',          1, '3'),
+    (prog_id, 'HUM-101',    'Islamic Studies/Ethics',                       1, '2'),
+    (prog_id, 'HUM-102',    'Pakistan Studies',                             1, '2'),
+    -- Semester 2
+    (prog_id, 'CSC-150',    'Object-Oriented Programming',                  2, '4'),
+    (prog_id, 'MTS-150',    'Calculus and Analytic Geometry',               2, '3'),
+    (prog_id, 'ENG-150',    'Communication and Presentation Skills',        2, '3'),
+    (prog_id, 'CSC-151',    'Discrete Structures',                          2, '3'),
+    (prog_id, 'PHY-150',    'Applied Physics',                              2, '3'),
+    -- Semester 3
+    (prog_id, 'CSC-201',    'Data Structures',                              3, '4'),
+    (prog_id, 'ESE-201',    'Digital Logic Design',                         3, '4'),
+    (prog_id, 'MTS-201',    'Multivariate Calculus',                        3, '3'),
+    (prog_id, 'SWE-201',    'Software Engineering',                         3, '3'),
+    -- Semester 4
+    (prog_id, 'CSC-250',    'Computer Organization & Assembly Language',    4, '4'),
+    (prog_id, 'CSC-251',    'Database Systems',                             4, '4'),
+    (prog_id, 'CSC-252',    'Operating Systems',                            4, '4'),
+    (prog_id, 'MTS-250',    'Linear Algebra',                               4, '3'),
+    (prog_id, 'ENG-201',    'Technical Writing',                            4, '3'),
+    -- Semester 5
+    (prog_id, 'MTS-301',    'Differential Equations',                       5, '3'),
+    (prog_id, 'MTS-302',    'Probability and Statistics',                   5, '3'),
+    (prog_id, 'CSC-301',    'Computer Networks',                            5, '4'),
+    -- Semester 6
+    (prog_id, 'CSC-350',    'Artificial Intelligence',                      6, '4'),
+    (prog_id, 'CSC-351',    'Design and Analysis of Algorithms',            6, '3'),
+    (prog_id, 'CSC-353',    'Information Security',                         6, '3'),
+    (prog_id, 'CSC-352',    'Theory of Automata',                           6, '3'),
+    -- Semester 7
+    (prog_id, 'CSC-402',    'Compiler Construction',                        7, '3'),
+    (prog_id, 'CSC-403',    'Graph Theory',                                 7, '3'),
+    (prog_id, 'FYP-401',    'Project-I',                                    7, '3'),
+    -- Semester 8
+    (prog_id, 'CSC-450',    'Parallel & Distributed Computing',             8, '3'),
+    (prog_id, 'FYP-451',    'Project-II',                                   8, '3'),
+    -- University Electives (semester = null)
+    (prog_id, 'UNI-EL-001', 'Principles of Management',                  NULL, '3'),
+    (prog_id, 'UNI-EL-002', 'E-Business Management',                     NULL, '3'),
+    (prog_id, 'UNI-EL-003', 'Technology Entrepreneurship',               NULL, '3'),
+    (prog_id, 'UNI-EL-004', 'Professional Practices',                    NULL, '3'),
+    (prog_id, 'UNI-EL-005', 'Financial Accounting',                      NULL, '3'),
+    (prog_id, 'UNI-EL-006', 'Research Methods in Computer Science',      NULL, '3'),
+    (prog_id, 'UNI-EL-007', 'Management Information Systems',            NULL, '3'),
+    (prog_id, 'UNI-EL-008', 'Organizational Behavior',                   NULL, '3'),
+    (prog_id, 'UNI-EL-009', 'Human Resource Management',                 NULL, '3'),
+    (prog_id, 'UNI-EL-010', 'Financial Management',                      NULL, '3'),
+    (prog_id, 'UNI-EL-011', 'Principles of Marketing',                   NULL, '3'),
+    (prog_id, 'UNI-EL-012', 'Introduction to Economics',                 NULL, '3'),
+    (prog_id, 'UNI-EL-013', 'Psychology',                                NULL, '3'),
+    (prog_id, 'UNI-EL-014', 'International Relations',                   NULL, '3'),
+    (prog_id, 'UNI-EL-015', 'Philosophy',                                NULL, '3'),
+    (prog_id, 'UNI-EL-016', 'System Analysis & Design',                  NULL, '3'),
+    -- CS Electives (semester = null)
+    (prog_id, 'CS-EL-001',  'Numerical Computing',                       NULL, '3'),
+    (prog_id, 'CS-EL-002',  'Computer Graphics and Animations',          NULL, '3'),
+    (prog_id, 'CS-EL-003',  'Software Project and Quality Management',   NULL, '3'),
+    (prog_id, 'CS-EL-004',  'Multimedia Technologies',                   NULL, '3'),
+    (prog_id, 'CS-EL-005',  'Cloud Computing',                           NULL, '3'),
+    (prog_id, 'CS-EL-006',  'Mobile Application Development',            NULL, '3'),
+    (prog_id, 'CS-EL-007',  'Machine Learning',                          NULL, '3'),
+    (prog_id, 'CS-EL-008',  'Digital Signal Processing',                 NULL, '3'),
+    (prog_id, 'CS-EL-009',  'Computer Vision',                           NULL, '3'),
+    (prog_id, 'CS-EL-010',  'Data and Network Security',                 NULL, '3'),
+    (prog_id, 'CS-EL-011',  'Wireless Networks',                         NULL, '3'),
+    (prog_id, 'CS-EL-012',  'Data Mining',                               NULL, '3'),
+    (prog_id, 'CS-EL-013',  'Artificial Neural Network',                 NULL, '3'),
+    (prog_id, 'CS-EL-014',  'Natural Language Processing',               NULL, '3'),
+    (prog_id, 'CS-EL-015',  'Game Development',                          NULL, '3'),
+    (prog_id, 'CS-EL-016',  'Web Engineering',                           NULL, '3'),
+    (prog_id, 'CS-EL-017',  'Human Computer Interaction',                NULL, '3'),
+    (prog_id, 'CS-EL-018',  'Big Data Analytics',                        NULL, '3'),
+    (prog_id, 'CS-EL-019',  'Deep Learning',                             NULL, '3'),
+    (prog_id, 'CS-EL-020',  'Blockchain',                                NULL, '3'),
+    (prog_id, 'CS-EL-021',  'Software Design & Architecture',            NULL, '3'),
+    (prog_id, 'CS-EL-022',  'Visual Programming',                        NULL, '3'),
+    (prog_id, 'CS-EL-023',  'Object Oriented Analysis and Design',       NULL, '3'),
+    (prog_id, 'CS-EL-024',  'Business Intelligence',                     NULL, '3'),
+    (prog_id, 'CS-EL-025',  'Network Security and Cryptography',         NULL, '3'),
+    (prog_id, 'CS-EL-026',  'Social Network Analysis',                   NULL, '3'),
+    (prog_id, 'CS-EL-027',  'Data Warehousing',                          NULL, '3'),
+    (prog_id, 'CS-EL-028',  'Soft Computing',                            NULL, '3'),
+    (prog_id, 'CS-EL-029',  'Formal Methods for Software Engineering',   NULL, '3'),
+    (prog_id, 'CS-EL-030',  'Software Verification and Validation',      NULL, '3');
 END $$;

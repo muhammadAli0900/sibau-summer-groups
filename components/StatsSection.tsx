@@ -12,21 +12,21 @@ export default function StatsSection({ stats }: Props) {
   ]
 
   return (
-    <section className="py-8 px-4">
+    <section className="py-12 px-4">
       <div className="max-w-4xl mx-auto grid grid-cols-3 gap-4">
         {items.map(item => (
           <div
             key={item.label}
-            className="bg-slate-800/60 border border-slate-700/50 rounded-xl p-5 text-center"
+            className="bg-gradient-to-b from-slate-800 to-slate-800/80 border border-slate-700/50 rounded-xl p-6 text-center"
           >
             <item.icon className={`w-7 h-7 ${item.color} mx-auto mb-3`} />
             <div
-              className="text-4xl font-black text-white"
+              className="text-5xl font-black text-white"
               style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             >
               {item.value}
             </div>
-            <div className="text-slate-500 text-xs mt-1.5 font-medium uppercase tracking-wide">{item.label}</div>
+            <div className="text-slate-500 text-xs mt-2 font-medium uppercase tracking-wide">{item.label}</div>
           </div>
         ))}
       </div>
