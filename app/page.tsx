@@ -1,3 +1,5 @@
+export const revalidate = 0
+
 import { supabase } from '@/lib/supabase'
 import HeroSearch from '@/components/HeroSearch'
 import ProgramCards from '@/components/ProgramCards'
