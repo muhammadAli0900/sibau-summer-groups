@@ -38,7 +38,7 @@ async function getProgramData(code: string) {
 
 export default async function ProgramPage({ params }: Props) {
   const { programCode } = await params
-  const data = await getProgramData(programCode.toUpperCase())
+  const data = await getProgramData(programCode)
   if (!data) notFound()
 
   return <ProgramPageClient {...data} />
