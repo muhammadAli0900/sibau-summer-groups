@@ -48,6 +48,10 @@ export default function InterestButton({ courseId, onInterestRegistered }: Props
       setCmsIdError('Please enter your CMS ID')
       return
     }
+    if (!/^\d{3}-\d{2}-\d{4}$/.test(cmsId.trim())) {
+      setCmsIdError('Invalid format — should be like 083-23-0012')
+      return
+    }
     setCmsIdError('')
     setSubmitting(true)
 
@@ -169,7 +173,7 @@ export default function InterestButton({ courseId, onInterestRegistered }: Props
                 type="text"
                 value={cmsId}
                 onChange={e => { setCmsId(e.target.value); if (cmsIdError) setCmsIdError('') }}
-                placeholder="e.g. 2022-CS-101"
+                placeholder="e.g. 083-23-0012"
                 autoFocus
                 style={{
                   ...inputStyle,

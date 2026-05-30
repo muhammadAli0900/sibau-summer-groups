@@ -19,14 +19,8 @@ function getTimeLeft() {
 const pad = (n: number) => String(n).padStart(2, '0')
 
 export default function AnnouncementBanner() {
-  const [dismissed, setDismissed] = useState(true)
+  const [dismissed, setDismissed] = useState(false)
   const [timeLeft, setTimeLeft] = useState(getTimeLeft())
-
-  useEffect(() => {
-    if (localStorage.getItem('sibau_banner_v1') !== 'true') {
-      setDismissed(false)
-    }
-  }, [])
 
   useEffect(() => {
     if (dismissed) return
@@ -36,7 +30,6 @@ export default function AnnouncementBanner() {
 
   const dismiss = () => {
     setDismissed(true)
-    localStorage.setItem('sibau_banner_v1', 'true')
   }
 
   if (dismissed || !timeLeft) return null
