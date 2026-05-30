@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { X, Search, MessageCircle, ChevronRight, Loader2, Check, PenLine } from 'lucide-react'
 import { useToast } from '@/components/ToastProvider'
+import { getProgramColor } from '@/lib/programColors'
 
 type SearchResult = {
   id: string
@@ -28,6 +29,25 @@ type Props = {
   onSuccess?: () => void
 }
 
+const inputStyle = {
+  backgroundColor: '#1a1410',
+  border: '1px solid #3d3020',
+  color: '#f0e6d3',
+  fontFamily: "'DM Sans', sans-serif",
+  borderRadius: 8,
+  padding: '12px 16px',
+  width: '100%',
+  outline: 'none',
+}
+
+const labelStyle = {
+  color: '#8a7560',
+  fontFamily: "'DM Sans', sans-serif",
+  fontSize: 14,
+  display: 'block',
+  marginBottom: 6,
+}
+
 export default function AddGroupModal({ initialCourseId, initialCourseTitle, onClose, onSuccess }: Props) {
   const [step, setStep] = useState<1 | 2>(initialCourseId ? 2 : 1)
   const [selectedCourse, setSelectedCourse] = useState<SearchResult | null>(
@@ -40,7 +60,6 @@ export default function AddGroupModal({ initialCourseId, initialCourseTitle, onC
   const [searching, setSearching] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
 
-  // Manual entry mode
   const [manualMode, setManualMode] = useState(false)
   const [programs, setPrograms] = useState<ProgramOption[]>([])
   const [manualCourseName, setManualCourseName] = useState('')
@@ -48,7 +67,6 @@ export default function AddGroupModal({ initialCourseId, initialCourseTitle, onC
   const [manualProgramId, setManualProgramId] = useState('')
   const [manualSemester, setManualSemester] = useState('')
 
-  // Step 2 fields
   const [groupName, setGroupName] = useState(initialCourseTitle ?? '')
   const [inviteLink, setInviteLink] = useState('')
   const [addedBy, setAddedBy] = useState('')
@@ -113,7 +131,7 @@ export default function AddGroupModal({ initialCourseId, initialCourseTitle, onC
       semester_number: manualSemester ? parseInt(manualSemester) : null,
       program_code: prog?.code ?? '',
       program_name: prog?.name ?? '',
-      program_color: prog?.color ?? '#6366f1',
+      program_color: prog?.color ?? '#c9a96e',
     })
     setGroupName(manualCourseName.trim())
     setStep(2)
@@ -133,7 +151,6 @@ export default function AddGroupModal({ initialCourseId, initialCourseTitle, onC
     if (!selectedCourse) return
     if (!validateLink(inviteLink)) return
     if (!groupName.trim()) return
-
     setSubmitting(true)
     try {
       const isManual = selectedCourse.id === '__manual__'
@@ -144,7 +161,6 @@ export default function AddGroupModal({ initialCourseId, initialCourseTitle, onC
         invite_link: inviteLink.trim(),
         added_by: addedBy.trim() || null,
       }
-
       if (isManual) {
         body.is_manual = true
         body.course_name_manual = manualCourseName.trim()
@@ -154,7 +170,6 @@ export default function AddGroupModal({ initialCourseId, initialCourseTitle, onC
       } else {
         body.course_id = selectedCourse.id
       }
-
       const res = await fetch('/api/groups', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -162,7 +177,6 @@ export default function AddGroupModal({ initialCourseId, initialCourseTitle, onC
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Failed to add group')
-
       showToast('Group added successfully!', 'success')
       onSuccess ? onSuccess() : onClose()
     } catch (e: unknown) {
@@ -177,94 +191,135 @@ export default function AddGroupModal({ initialCourseId, initialCourseTitle, onC
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ backgroundColor: 'rgba(0,0,0,0.7)' }}
       onClick={e => e.target === overlayRef.current && onClose()}
     >
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl">
+      <div
+        className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl"
+        style={{
+          backgroundColor: '#231c15',
+          border: '1px solid #3d3020',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.4)',
+        }}
+      >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-800">
+        <div
+          className="flex items-center justify-between p-5"
+          style={{ borderBottom: '1px solid #3d3020' }}
+        >
           <div>
             <h2
-              className="text-white font-bold text-lg"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+              className="text-lg font-bold"
+              style={{ fontFamily: "'Playfair Display', serif", color: '#e8d5b0' }}
             >
               Add a Group
             </h2>
-            <p className="text-slate-400 text-sm">Step {step} of 2</p>
+            <p className="text-sm mt-0.5" style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}>
+              Step {step} of 2
+            </p>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white p-1">
+          <button
+            onClick={onClose}
+            className="transition-opacity opacity-60 hover:opacity-100"
+            style={{ color: '#8a7560' }}
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Step indicator */}
+        {/* Step progress */}
         <div className="flex gap-2 px-5 pt-4">
           {[1, 2].map(s => (
             <div
               key={s}
-              className={`h-1 flex-1 rounded-full transition-colors duration-300 ${
-                s <= step ? 'bg-blue-500' : 'bg-slate-700'
-              }`}
+              className="h-0.5 flex-1 rounded-full transition-colors duration-300"
+              style={{ backgroundColor: s <= step ? '#c9a96e' : '#3d3020' }}
             />
           ))}
         </div>
 
         <div className="p-5">
-          {/* Step 1 — Search mode */}
+          {/* Step 1 — Search */}
           {step === 1 && !manualMode && (
             <div>
-              <h3 className="text-white font-semibold mb-4">Select Course</h3>
+              <h3
+                className="font-semibold mb-4"
+                style={{ color: '#e8d5b0', fontFamily: "'DM Sans', sans-serif" }}
+              >
+                Select Course
+              </h3>
               <div className="relative mb-4">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Search
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
+                  style={{ color: '#5a4a38' }}
+                />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
                   placeholder="Search by course name or code..."
                   autoFocus
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-10 pr-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm"
+                  style={{ ...inputStyle, paddingLeft: 40 }}
+                  onFocus={e => (e.target.style.borderColor = '#c9a96e')}
+                  onBlur={e => (e.target.style.borderColor = '#3d3020')}
                 />
               </div>
 
               <div className="space-y-1 max-h-64 overflow-y-auto">
                 {searching && (
-                  <div className="flex items-center gap-2 p-3 text-slate-400 text-sm">
+                  <div
+                    className="flex items-center gap-2 p-3 text-sm"
+                    style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}
+                  >
                     <Loader2 className="w-4 h-4 animate-spin" />
                     Searching...
                   </div>
                 )}
-                {searchResults.map(course => (
-                  <button
-                    key={course.id}
-                    onClick={() => handleSelectCourse(course)}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-800 transition-colors text-left min-h-[44px]"
-                  >
-                    <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0"
-                      style={{ backgroundColor: `${course.program_color}20`, color: course.program_color }}
+                {searchResults.map(course => {
+                  const c = getProgramColor(course.program_code, course.program_color)
+                  return (
+                    <button
+                      key={course.id}
+                      onClick={() => handleSelectCourse(course)}
+                      className="w-full flex items-center gap-3 p-3 rounded-lg transition-colors text-left min-h-[44px] hover:bg-[#2a2118]"
                     >
-                      {course.program_code.slice(0, 2)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-white text-sm font-medium truncate">{course.title}</div>
-                      <div className="text-slate-400 text-xs">
-                        {course.code} ·{' '}
-                        <span style={{ color: course.program_color }}>{course.program_code}</span>
-                        {course.semester_number ? ` · Sem ${course.semester_number}` : ''}
+                      <div
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0"
+                        style={{ backgroundColor: `${c}20`, color: c, fontFamily: "'DM Sans', sans-serif" }}
+                      >
+                        {course.program_code.slice(0, 2)}
                       </div>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-slate-500 shrink-0" />
-                  </button>
-                ))}
+                      <div className="flex-1 min-w-0">
+                        <div
+                          className="text-sm font-medium truncate"
+                          style={{ color: '#f0e6d3', fontFamily: "'DM Sans', sans-serif" }}
+                        >
+                          {course.title}
+                        </div>
+                        <div className="text-xs" style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}>
+                          {course.code} · <span style={{ color: c }}>{course.program_code}</span>
+                          {course.semester_number ? ` · Sem ${course.semester_number}` : ''}
+                        </div>
+                      </div>
+                      <ChevronRight className="w-4 h-4 shrink-0" style={{ color: '#5a4a38' }} />
+                    </button>
+                  )
+                })}
               </div>
 
-              {/* "Can't find?" button — shown when search returned no results */}
               {showNoResults && (
-                <div className="mt-3 text-center border-t border-slate-800 pt-4">
-                  <p className="text-slate-500 text-sm mb-3">No courses found for &ldquo;{searchQuery}&rdquo;</p>
+                <div
+                  className="mt-3 text-center pt-4"
+                  style={{ borderTop: '1px solid #3d3020' }}
+                >
+                  <p className="text-sm mb-3" style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}>
+                    No courses found for &ldquo;{searchQuery}&rdquo;
+                  </p>
                   <button
                     onClick={handleEnterManual}
-                    className="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 text-sm font-semibold transition-colors"
+                    className="inline-flex items-center gap-2 text-sm font-semibold transition-colors"
+                    style={{ color: '#c9a96e', fontFamily: "'DM Sans', sans-serif" }}
                   >
                     <PenLine className="w-4 h-4" />
                     Can&rsquo;t find your course? Add it manually →
@@ -273,37 +328,42 @@ export default function AddGroupModal({ initialCourseId, initialCourseTitle, onC
               )}
 
               {!hasSearched && searchQuery.length < 2 && (
-                <p className="text-slate-500 text-sm text-center py-8">
+                <p
+                  className="text-sm text-center py-8"
+                  style={{ color: '#5a4a38', fontFamily: "'DM Sans', sans-serif" }}
+                >
                   Type at least 2 characters to search courses
                 </p>
               )}
             </div>
           )}
 
-          {/* Step 1 — Manual entry mode */}
+          {/* Step 1 — Manual entry */}
           {step === 1 && manualMode && (
             <div>
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0">
-                  <PenLine className="w-4 h-4 text-indigo-400" />
-                </div>
+                <PenLine className="w-4 h-4 shrink-0" style={{ color: '#c9a96e' }} />
                 <div>
-                  <h3 className="text-white font-semibold text-sm">Manual Course Entry</h3>
-                  <p className="text-slate-500 text-xs">Fill in your course details below</p>
+                  <h3 className="text-sm font-semibold" style={{ color: '#e8d5b0', fontFamily: "'DM Sans', sans-serif" }}>
+                    Manual Course Entry
+                  </h3>
+                  <p className="text-xs" style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}>
+                    Fill in your course details below
+                  </p>
                 </div>
                 <button
                   onClick={() => setManualMode(false)}
-                  className="ml-auto text-slate-500 hover:text-slate-300 text-xs"
+                  className="ml-auto text-xs transition-colors"
+                  style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}
                 >
                   Back to search
                 </button>
               </div>
 
               <div className="space-y-4">
-                {/* Course name */}
                 <div>
-                  <label className="text-slate-300 text-sm font-medium block mb-1">
-                    Course Name <span className="text-red-400">*</span>
+                  <label style={labelStyle}>
+                    Course Name <span style={{ color: '#c47a7a' }}>*</span>
                   </label>
                   <input
                     type="text"
@@ -311,33 +371,35 @@ export default function AddGroupModal({ initialCourseId, initialCourseTitle, onC
                     onChange={e => setManualCourseName(e.target.value)}
                     placeholder="e.g. Database Systems"
                     autoFocus
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm"
+                    style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = '#c9a96e')}
+                    onBlur={e => (e.target.style.borderColor = '#3d3020')}
                   />
                 </div>
-
-                {/* Course code */}
                 <div>
-                  <label className="text-slate-300 text-sm font-medium block mb-1">
-                    Course Code <span className="text-slate-500 font-normal">(optional)</span>
+                  <label style={labelStyle}>
+                    Course Code <span style={{ color: '#5a4a38' }}>(optional)</span>
                   </label>
                   <input
                     type="text"
                     value={manualCourseCode}
                     onChange={e => setManualCourseCode(e.target.value)}
                     placeholder="e.g. CSC-301"
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm"
+                    style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = '#c9a96e')}
+                    onBlur={e => (e.target.style.borderColor = '#3d3020')}
                   />
                 </div>
-
-                {/* Program */}
                 <div>
-                  <label className="text-slate-300 text-sm font-medium block mb-1">
-                    Program <span className="text-slate-500 font-normal">(optional)</span>
+                  <label style={labelStyle}>
+                    Program <span style={{ color: '#5a4a38' }}>(optional)</span>
                   </label>
                   <select
                     value={manualProgramId}
                     onChange={e => setManualProgramId(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm appearance-none"
+                    style={{ ...inputStyle, appearance: 'none' }}
+                    onFocus={e => (e.target.style.borderColor = '#c9a96e')}
+                    onBlur={e => (e.target.style.borderColor = '#3d3020')}
                   >
                     <option value="">Select a program...</option>
                     {programs.map(p => (
@@ -345,16 +407,16 @@ export default function AddGroupModal({ initialCourseId, initialCourseTitle, onC
                     ))}
                   </select>
                 </div>
-
-                {/* Semester */}
                 <div>
-                  <label className="text-slate-300 text-sm font-medium block mb-1">
-                    Semester <span className="text-slate-500 font-normal">(optional)</span>
+                  <label style={labelStyle}>
+                    Semester <span style={{ color: '#5a4a38' }}>(optional)</span>
                   </label>
                   <select
                     value={manualSemester}
                     onChange={e => setManualSemester(e.target.value)}
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-sm appearance-none"
+                    style={{ ...inputStyle, appearance: 'none' }}
+                    onFocus={e => (e.target.style.borderColor = '#c9a96e')}
+                    onBlur={e => (e.target.style.borderColor = '#3d3020')}
                   >
                     <option value="">Select semester...</option>
                     {[1,2,3,4,5,6,7,8].map(s => (
@@ -367,48 +429,54 @@ export default function AddGroupModal({ initialCourseId, initialCourseTitle, onC
               <button
                 onClick={handleManualProceed}
                 disabled={!manualCourseName.trim()}
-                className="w-full mt-5 flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-sm font-semibold py-3 rounded-xl transition-colors"
+                className="w-full mt-5 flex items-center justify-center gap-2 text-sm font-semibold py-3 rounded-lg transition-all duration-200 disabled:opacity-50"
+                style={{
+                  backgroundColor: '#c9a96e',
+                  color: '#1a1410',
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.backgroundColor = '#d4b87e')}
+                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.backgroundColor = '#c9a96e')}
               >
                 Continue →
               </button>
             </div>
           )}
 
-          {/* Step 2: Fill group details */}
+          {/* Step 2 */}
           {step === 2 && (
             <div>
               {selectedCourse && (
                 <div
-                  className="flex items-center gap-3 p-3 rounded-xl mb-5 border"
+                  className="flex items-center gap-3 p-3 rounded-xl mb-5"
                   style={{
-                    backgroundColor: `${selectedCourse.program_color || '#6366f1'}10`,
-                    borderColor: `${selectedCourse.program_color || '#6366f1'}30`,
+                    backgroundColor: 'rgba(201,169,110,0.06)',
+                    border: '1px solid rgba(201,169,110,0.2)',
                   }}
                 >
-                  <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <Check className="w-4 h-4 shrink-0" style={{ color: '#c9a96e' }} />
                   <div className="min-w-0 flex-1">
-                    <div className="text-white text-sm font-medium truncate">{selectedCourse.title}</div>
+                    <div
+                      className="text-sm font-medium truncate"
+                      style={{ color: '#f0e6d3', fontFamily: "'DM Sans', sans-serif" }}
+                    >
+                      {selectedCourse.title}
+                    </div>
                     {(selectedCourse.code || selectedCourse.program_code) && (
-                      <div className="text-slate-400 text-xs">
+                      <div className="text-xs" style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}>
                         {selectedCourse.code && `${selectedCourse.code} · `}
                         {selectedCourse.program_code || 'Manual entry'}
                         {selectedCourse.id === '__manual__' && (
-                          <span className="ml-1 text-indigo-400">(manual)</span>
+                          <span className="ml-1" style={{ color: '#c9a96e' }}>(manual)</span>
                         )}
                       </div>
                     )}
                   </div>
                   {!initialCourseId && (
                     <button
-                      onClick={() => {
-                        setStep(1)
-                        if (selectedCourse.id === '__manual__') {
-                          // go back to manual mode
-                        } else {
-                          setManualMode(false)
-                        }
-                      }}
-                      className="text-slate-400 hover:text-white text-xs shrink-0"
+                      onClick={() => setStep(1)}
+                      className="text-xs shrink-0 transition-colors"
+                      style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}
                     >
                       Change
                     </button>
@@ -417,57 +485,67 @@ export default function AddGroupModal({ initialCourseId, initialCourseTitle, onC
               )}
 
               <div className="space-y-4">
-                {/* Platform */}
                 <div>
-                  <label className="text-slate-300 text-sm font-medium block mb-2">Platform</label>
-                  <div className="flex items-center gap-2 bg-slate-800 border border-emerald-500/30 rounded-xl px-4 py-3">
-                    <MessageCircle className="w-4 h-4 text-emerald-400" />
-                    <span className="text-white text-sm">WhatsApp</span>
+                  <label style={labelStyle}>Platform</label>
+                  <div
+                    className="flex items-center gap-2 px-4 py-3 rounded-lg"
+                    style={{ backgroundColor: '#1a1410', border: '1px solid rgba(74,122,90,0.3)' }}
+                  >
+                    <MessageCircle className="w-4 h-4" style={{ color: '#a0d4b0' }} />
+                    <span className="text-sm" style={{ color: '#f0e6d3', fontFamily: "'DM Sans', sans-serif" }}>
+                      WhatsApp
+                    </span>
                   </div>
                 </div>
-
-                {/* Group name */}
                 <div>
-                  <label className="text-slate-300 text-sm font-medium block mb-1">Group Name</label>
-                  <p className="text-slate-500 text-xs mb-2">Recommended: use the exact course name</p>
+                  <label style={labelStyle}>Group Name</label>
+                  <p className="text-xs mb-2" style={{ color: '#5a4a38', fontFamily: "'DM Sans', sans-serif" }}>
+                    Recommended: use the exact course name
+                  </p>
                   <input
                     type="text"
                     value={groupName}
                     onChange={e => setGroupName(e.target.value)}
                     placeholder="e.g. Programming Fundamentals"
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm"
+                    style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = '#c9a96e')}
+                    onBlur={e => (e.target.style.borderColor = '#3d3020')}
                   />
                 </div>
-
-                {/* Invite link */}
                 <div>
-                  <label className="text-slate-300 text-sm font-medium block mb-2">
-                    Invite Link <span className="text-red-400">*</span>
+                  <label style={labelStyle}>
+                    Invite Link <span style={{ color: '#c47a7a' }}>*</span>
                   </label>
                   <input
                     type="url"
                     value={inviteLink}
                     onChange={e => { setInviteLink(e.target.value); if (linkError) validateLink(e.target.value) }}
-                    onBlur={() => validateLink(inviteLink)}
                     placeholder="https://chat.whatsapp.com/..."
-                    className={`w-full bg-slate-800 border rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-1 text-sm transition-colors ${
-                      linkError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-700 focus:border-blue-500 focus:ring-blue-500'
-                    }`}
+                    style={{
+                      ...inputStyle,
+                      borderColor: linkError ? '#c47a7a' : '#3d3020',
+                    }}
+                    onFocus={e => (e.target.style.borderColor = linkError ? '#c47a7a' : '#c9a96e')}
+                    onBlur={e => { validateLink(inviteLink); e.target.style.borderColor = linkError ? '#c47a7a' : '#3d3020' }}
                   />
-                  {linkError && <p className="text-red-400 text-xs mt-1">{linkError}</p>}
+                  {linkError && (
+                    <p className="text-xs mt-1" style={{ color: '#c47a7a', fontFamily: "'DM Sans', sans-serif" }}>
+                      {linkError}
+                    </p>
+                  )}
                 </div>
-
-                {/* Added by */}
                 <div>
-                  <label className="text-slate-300 text-sm font-medium block mb-2">
-                    Your Name <span className="text-slate-500 font-normal">(optional)</span>
+                  <label style={labelStyle}>
+                    Your Name <span style={{ color: '#5a4a38' }}>(optional)</span>
                   </label>
                   <input
                     type="text"
                     value={addedBy}
                     onChange={e => setAddedBy(e.target.value)}
                     placeholder="e.g. Ali Hassan"
-                    className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm"
+                    style={inputStyle}
+                    onFocus={e => (e.target.style.borderColor = '#c9a96e')}
+                    onBlur={e => (e.target.style.borderColor = '#3d3020')}
                   />
                 </div>
               </div>
@@ -476,7 +554,12 @@ export default function AddGroupModal({ initialCourseId, initialCourseTitle, onC
                 {!initialCourseId && (
                   <button
                     onClick={() => setStep(1)}
-                    className="flex-1 bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold py-3 rounded-xl transition-colors"
+                    className="flex-1 text-sm font-semibold py-3 rounded-lg transition-all duration-200"
+                    style={{
+                      backgroundColor: '#2a2118',
+                      color: '#8a7560',
+                      fontFamily: "'DM Sans', sans-serif",
+                    }}
                   >
                     Back
                   </button>
@@ -484,7 +567,14 @@ export default function AddGroupModal({ initialCourseId, initialCourseTitle, onC
                 <button
                   onClick={handleSubmit}
                   disabled={submitting || !groupName.trim() || !inviteLink.trim()}
-                  className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-semibold py-3 rounded-xl transition-colors"
+                  className="flex-1 flex items-center justify-center gap-2 text-sm font-semibold py-3 rounded-lg transition-all duration-200 disabled:opacity-50"
+                  style={{
+                    backgroundColor: '#c9a96e',
+                    color: '#1a1410',
+                    fontFamily: "'DM Sans', sans-serif",
+                  }}
+                  onMouseEnter={e => { if (!submitting) (e.currentTarget as HTMLElement).style.backgroundColor = '#d4b87e' }}
+                  onMouseLeave={e => ((e.currentTarget as HTMLElement).style.backgroundColor = '#c9a96e')}
                 >
                   {submitting ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Adding...</>

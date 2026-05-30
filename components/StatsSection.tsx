@@ -1,34 +1,40 @@
-import { Users, BookOpen, Link2 } from 'lucide-react'
-
 type Props = {
   stats: { groups: number; courses: number; joins: number }
 }
 
 export default function StatsSection({ stats }: Props) {
   const items = [
-    { label: 'Groups Listed', value: stats.groups, icon: Link2, color: 'text-blue-400' },
-    { label: 'Courses', value: stats.courses, icon: BookOpen, color: 'text-purple-400' },
-    { label: 'Total Joins', value: stats.joins, icon: Users, color: 'text-emerald-400' },
+    { label: 'Groups Listed', value: stats.groups },
+    { label: 'Courses', value: stats.courses },
+    { label: 'Total Joins', value: stats.joins },
   ]
 
   return (
-    <section className="py-12 px-4">
-      <div className="max-w-4xl mx-auto grid grid-cols-3 gap-4">
-        {items.map(item => (
-          <div
-            key={item.label}
-            className="bg-gradient-to-b from-slate-800 to-slate-800/80 border border-slate-700/50 rounded-xl p-6 text-center"
-          >
-            <item.icon className={`w-7 h-7 ${item.color} mx-auto mb-3`} />
-            <div
-              className="text-5xl font-black text-white"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-            >
-              {item.value}
+    <section className="py-16 px-4">
+      <div className="max-w-3xl mx-auto">
+        <div className="flex items-center justify-center flex-wrap gap-0">
+          {items.map((item, i) => (
+            <div key={item.label} className="flex items-center">
+              <div className="text-center px-8 sm:px-12 py-4">
+                <div
+                  className="text-5xl font-bold"
+                  style={{ fontFamily: "'Playfair Display', serif", color: '#c9a96e' }}
+                >
+                  {item.value}
+                </div>
+                <div
+                  className="text-sm mt-2"
+                  style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}
+                >
+                  {item.label}
+                </div>
+              </div>
+              {i < items.length - 1 && (
+                <div style={{ width: 1, height: 64, backgroundColor: '#3d3020', flexShrink: 0 }} />
+              )}
             </div>
-            <div className="text-slate-500 text-xs mt-2 font-medium uppercase tracking-wide">{item.label}</div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   )

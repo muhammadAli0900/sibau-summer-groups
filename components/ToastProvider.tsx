@@ -37,21 +37,24 @@ export default function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map(toast => (
           <div
             key={toast.id}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl border text-sm font-medium ${
-              toast.type === 'success'
-                ? 'bg-emerald-900/90 border-emerald-700 text-emerald-100'
-                : 'bg-red-900/90 border-red-700 text-red-100'
-            }`}
+            className="flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl text-sm"
+            style={{
+              backgroundColor: '#231c15',
+              border: '1px solid #4a3a28',
+              boxShadow: '0 4px 24px rgba(0,0,0,0.4)',
+              fontFamily: "'DM Sans', sans-serif",
+              color: '#f0e6d3',
+            }}
           >
             {toast.type === 'success' ? (
-              <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+              <CheckCircle className="w-4 h-4 shrink-0" style={{ color: '#c9a96e' }} />
             ) : (
-              <XCircle className="w-4 h-4 text-red-400 shrink-0" />
+              <XCircle className="w-4 h-4 shrink-0" style={{ color: '#c47a7a' }} />
             )}
             <span className="flex-1">{toast.message}</span>
             <button
               onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
-              className="opacity-60 hover:opacity-100"
+              className="opacity-60 hover:opacity-100 transition-opacity"
             >
               <X className="w-4 h-4" />
             </button>

@@ -2,41 +2,49 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Menu, X, GraduationCap } from 'lucide-react'
+import { Menu, X } from 'lucide-react'
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <nav className="sticky top-0 z-50 glass border-b border-white/10 bg-white/5 backdrop-blur-md">
+    <nav style={{ backgroundColor: '#1a1410', borderBottom: '1px solid #3d3020' }} className="sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 font-heading font-800">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-              <GraduationCap className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-white font-bold text-lg" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-              SIBAU Summer Groups
+          <Link href="/" className="flex items-center gap-2">
+            <span
+              className="font-bold text-lg tracking-tight"
+              style={{ fontFamily: "'Playfair Display', serif", color: '#e8d5b0' }}
+            >
+              SIBAU Groups
             </span>
           </Link>
 
-          {/* Desktop Nav */}
+          {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-6">
-            <Link href="/" className="text-slate-300 hover:text-white text-sm transition-colors duration-200">
-              Home
-            </Link>
-            <Link href="/#programs" className="text-slate-300 hover:text-white text-sm transition-colors duration-200">
-              Programs
-            </Link>
-            <Link href="/admin" className="text-slate-300 hover:text-white text-sm transition-colors duration-200">
-              Admin
-            </Link>
+            {[
+              { href: '/', label: 'Home' },
+              { href: '/#programs', label: 'Programs' },
+              { href: '/admin', label: 'Admin' },
+            ].map(({ href, label }) => (
+              <Link
+                key={label}
+                href={href}
+                className="text-sm transition-colors duration-200"
+                style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}
+                onMouseEnter={e => ((e.target as HTMLElement).style.color = '#c9a96e')}
+                onMouseLeave={e => ((e.target as HTMLElement).style.color = '#8a7560')}
+              >
+                {label}
+              </Link>
+            ))}
           </div>
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden text-slate-300 hover:text-white p-2"
+            className="md:hidden p-2 transition-colors"
+            style={{ color: '#8a7560' }}
             onClick={() => setMenuOpen(!menuOpen)}
           >
             {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -45,28 +53,22 @@ export default function Navbar() {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div className="md:hidden pb-4 space-y-2">
-            <Link
-              href="/"
-              className="block px-3 py-2 text-slate-300 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors duration-200"
-              onClick={() => setMenuOpen(false)}
-            >
-              Home
-            </Link>
-            <Link
-              href="/#programs"
-              className="block px-3 py-2 text-slate-300 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors duration-200"
-              onClick={() => setMenuOpen(false)}
-            >
-              Programs
-            </Link>
-            <Link
-              href="/admin"
-              className="block px-3 py-2 text-slate-300 hover:text-white hover:bg-white/5 rounded-lg text-sm transition-colors duration-200"
-              onClick={() => setMenuOpen(false)}
-            >
-              Admin
-            </Link>
+          <div className="md:hidden pb-4 space-y-1">
+            {[
+              { href: '/', label: 'Home' },
+              { href: '/#programs', label: 'Programs' },
+              { href: '/admin', label: 'Admin' },
+            ].map(({ href, label }) => (
+              <Link
+                key={label}
+                href={href}
+                className="block px-3 py-2.5 rounded-lg text-sm transition-colors duration-200"
+                style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}
+                onClick={() => setMenuOpen(false)}
+              >
+                {label}
+              </Link>
+            ))}
           </div>
         )}
       </div>

@@ -1,76 +1,43 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
 
 @import "tailwindcss";
 
 :root {
-  --background: #0f172a;
-  --foreground: #f1f5f9;
+  --bg-primary: #1a1410;
+  --bg-card: #231c15;
+  --bg-card-hover: #2a2118;
+  --border: #3d3020;
+  --border-light: #4a3a28;
+  --accent-gold: #c9a96e;
+  --accent-gold-hover: #d4b87e;
+  --accent-cream: #e8d5b0;
+  --text-primary: #f0e6d3;
+  --text-muted: #8a7560;
+  --text-faint: #5a4a38;
 }
 
 body {
-  background: #0f172a;
-  color: #f1f5f9;
-  font-family: 'Inter', sans-serif;
+  background: #1a1410;
+  color: #f0e6d3;
+  font-family: 'DM Sans', sans-serif;
   min-height: 100vh;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-}
-
-.font-heading {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-}
-
-.glass {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-family: 'Playfair Display', serif;
+  letter-spacing: -0.02em;
 }
 
 ::-webkit-scrollbar {
   width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #1e293b;
+  background: #1a1410;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #3d3020;
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
-}
-
-@keyframes shimmer {
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
-}
-
-@keyframes hero-drift {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.hero-gradient-anim {
-  background: linear-gradient(
-    -45deg,
-    #0f172a 0%,
-    #111827 20%,
-    #0f172a 40%,
-    #1a1033 60%,
-    #0c1a2e 80%,
-    #0f172a 100%
-  );
-  background-size: 400% 400%;
-  animation: hero-drift 15s ease infinite;
-}
-
-.skeleton {
-  background: linear-gradient(90deg, #1e293b 25%, #2d3f55 50%, #1e293b 75%);
-  background-size: 1000px 100%;
-  animation: shimmer 2s infinite;
-  border-radius: 6px;
+  background: #4a3a28;
 }

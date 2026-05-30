@@ -36,21 +36,31 @@ export default async function HomePage() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative py-24 px-4 hero-gradient-anim">
-        <div className="relative max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 rounded-full px-4 py-1.5 text-blue-400 text-sm font-medium mb-6">
-            <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
+      <section className="py-24 px-4" style={{ backgroundColor: '#1a1410' }}>
+        <div className="max-w-4xl mx-auto text-center">
+          <div
+            className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium mb-6"
+            style={{
+              backgroundColor: 'rgba(201,169,110,0.08)',
+              border: '1px solid rgba(201,169,110,0.2)',
+              color: '#c9a96e',
+              fontFamily: "'DM Sans', sans-serif",
+            }}
+          >
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#c9a96e' }} />
             Sukkur IBA University &mdash; Summer 2026
           </div>
           <h1
-            className="text-3xl sm:text-5xl font-extrabold mb-4 leading-tight bg-gradient-to-b from-white to-slate-300 bg-clip-text text-transparent"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            className="text-3xl sm:text-5xl font-bold mb-4 leading-tight tracking-tight"
+            style={{ fontFamily: "'Playfair Display', serif", color: '#e8d5b0' }}
           >
-            Find Your Summer
-            <span className="text-blue-400"> Course Group</span>
+            Find Your Summer Course Group
           </h1>
-          <p className="text-slate-400 text-lg sm:text-xl mb-10 max-w-2xl mx-auto">
-            Students repeating or improving a course need at least 5 classmates to register for a summer course. Find your course, join the WhatsApp group, and coordinate together.
+          <p
+            className="text-lg sm:text-xl mb-10 max-w-2xl mx-auto leading-relaxed"
+            style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}
+          >
+            Students repeating or improving a course need at least 5 classmates to register for a summer course. Search your course, join the WhatsApp group, coordinate together.
           </p>
           <HeroSearch />
         </div>
@@ -63,12 +73,17 @@ export default async function HomePage() {
       <section id="programs" className="py-20 px-4">
         <div className="max-w-7xl mx-auto">
           <h2
-            className="text-2xl sm:text-3xl font-extrabold text-white mb-2"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800 }}
+            className="text-2xl sm:text-3xl font-bold mb-2 tracking-tight"
+            style={{ fontFamily: "'Playfair Display', serif", color: '#e8d5b0' }}
           >
             Browse by Program
           </h2>
-          <p className="text-slate-500 text-sm mb-10">Select your program to find course groups</p>
+          <p
+            className="text-sm mb-10"
+            style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}
+          >
+            Select your program to find course groups
+          </p>
           <ProgramCards programs={programs} />
         </div>
       </section>

@@ -32,6 +32,30 @@ type Stats = {
   mostJoined: { group_name: string; count: number } | null
 }
 
+const cardStyle = {
+  backgroundColor: '#231c15',
+  border: '1px solid #3d3020',
+  borderRadius: 12,
+}
+
+const tableHeaderStyle = {
+  color: '#c9a96e',
+  fontFamily: "'DM Sans', sans-serif",
+  fontWeight: 600,
+  padding: '12px 16px',
+  textAlign: 'left' as const,
+  borderBottom: '1px solid #3d3020',
+  fontSize: 13,
+}
+
+const tableCellStyle = {
+  color: '#f0e6d3',
+  fontFamily: "'DM Sans', sans-serif",
+  padding: '12px 16px',
+  borderBottom: '1px solid #3d3020',
+  fontSize: 14,
+}
+
 export default function AdminPageClient() {
   const [authed, setAuthed] = useState(false)
   const [password, setPassword] = useState('')
@@ -52,8 +76,6 @@ export default function AdminPageClient() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    const adminPass = process.env.NEXT_PUBLIC_ADMIN_PASSWORD_HINT ?? ''
-    // Check via API to keep password server-side
     fetch('/api/admin/auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -123,20 +145,32 @@ export default function AdminPageClient() {
     URL.revokeObjectURL(url)
   }
 
+  /* ── Login screen ── */
   if (!authed) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-8 w-full max-w-sm">
-          <div className="w-12 h-12 bg-blue-500/10 border border-blue-500/20 rounded-xl flex items-center justify-center mx-auto mb-6">
-            <Lock className="w-6 h-6 text-blue-400" />
+      <div
+        className="min-h-screen flex items-center justify-center px-4"
+        style={{ backgroundColor: '#1a1410' }}
+      >
+        <div className="w-full max-w-sm p-8 rounded-2xl" style={cardStyle}>
+          <div
+            className="w-12 h-12 flex items-center justify-center rounded-xl mx-auto mb-6"
+            style={{ backgroundColor: 'rgba(201,169,110,0.08)', border: '1px solid rgba(201,169,110,0.2)' }}
+          >
+            <Lock className="w-6 h-6" style={{ color: '#c9a96e' }} />
           </div>
           <h1
-            className="text-xl font-bold text-white text-center mb-2"
-            style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            className="text-xl font-bold text-center mb-2"
+            style={{ fontFamily: "'Playfair Display', serif", color: '#e8d5b0' }}
           >
             Admin Access
           </h1>
-          <p className="text-slate-400 text-sm text-center mb-6">Enter your password to continue</p>
+          <p
+            className="text-sm text-center mb-6"
+            style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}
+          >
+            Enter your password to continue
+          </p>
           <form onSubmit={handleLogin} className="space-y-4">
             <input
               type="password"
@@ -144,12 +178,31 @@ export default function AdminPageClient() {
               onChange={e => setPassword(e.target.value)}
               placeholder="Password"
               autoFocus
-              className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+              className="w-full rounded-lg px-4 py-3 text-sm outline-none transition-all"
+              style={{
+                backgroundColor: '#1a1410',
+                border: '1px solid #3d3020',
+                color: '#f0e6d3',
+                fontFamily: "'DM Sans', sans-serif",
+              }}
+              onFocus={e => (e.target.style.borderColor = '#c9a96e')}
+              onBlur={e => (e.target.style.borderColor = '#3d3020')}
             />
-            {authError && <p className="text-red-400 text-sm">{authError}</p>}
+            {authError && (
+              <p className="text-sm" style={{ color: '#c47a7a', fontFamily: "'DM Sans', sans-serif" }}>
+                {authError}
+              </p>
+            )}
             <button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-colors"
+              className="w-full font-semibold py-3 rounded-lg transition-all duration-200"
+              style={{
+                backgroundColor: '#c9a96e',
+                color: '#1a1410',
+                fontFamily: "'DM Sans', sans-serif",
+              }}
+              onMouseEnter={e => ((e.currentTarget as HTMLElement).style.backgroundColor = '#d4b87e')}
+              onMouseLeave={e => ((e.currentTarget as HTMLElement).style.backgroundColor = '#c9a96e')}
             >
               Login
             </button>
@@ -159,32 +212,47 @@ export default function AdminPageClient() {
     )
   }
 
+  /* ── Dashboard ── */
   return (
-    <div className="min-h-screen py-8 px-4">
+    <div className="min-h-screen py-8 px-4" style={{ backgroundColor: '#1a1410' }}>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1
-              className="text-3xl font-extrabold text-white"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+              className="text-3xl font-bold tracking-tight"
+              style={{ fontFamily: "'Playfair Display', serif", color: '#e8d5b0' }}
             >
               Admin Dashboard
             </h1>
-            <p className="text-slate-400 mt-1">IBA Summer Course Groups</p>
+            <p className="text-sm mt-1" style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}>
+              IBA Summer Course Groups
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={loadData}
               disabled={loading}
-              className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm px-3 py-2 rounded-xl transition-colors"
+              className="flex items-center gap-2 text-sm px-3 py-2 rounded-lg transition-colors duration-200"
+              style={{
+                backgroundColor: '#2a2118',
+                border: '1px solid #3d3020',
+                color: '#8a7560',
+                fontFamily: "'DM Sans', sans-serif",
+              }}
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
               Refresh
             </button>
             <button
               onClick={() => { sessionStorage.removeItem('admin_auth'); setAuthed(false) }}
-              className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm px-3 py-2 rounded-xl transition-colors"
+              className="flex items-center gap-2 text-sm px-3 py-2 rounded-lg transition-colors duration-200"
+              style={{
+                backgroundColor: '#2a2118',
+                border: '1px solid #3d3020',
+                color: '#8a7560',
+                fontFamily: "'DM Sans', sans-serif",
+              }}
             >
               <LogOut className="w-4 h-4" />
               Logout
@@ -196,103 +264,175 @@ export default function AdminPageClient() {
         {stats && (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {[
-              { label: 'Total Groups', value: stats.totalGroups, icon: MessageCircle, color: 'text-blue-400' },
-              { label: 'Total Joins', value: stats.totalJoins, icon: Users, color: 'text-emerald-400' },
-              { label: 'Joins Today', value: stats.joinsToday, icon: Calendar, color: 'text-yellow-400' },
-              { label: 'Joins This Week', value: stats.joinsThisWeek, icon: TrendingUp, color: 'text-purple-400' },
+              { label: 'Total Groups', value: stats.totalGroups, icon: MessageCircle },
+              { label: 'Total Joins', value: stats.totalJoins, icon: Users },
+              { label: 'Joins Today', value: stats.joinsToday, icon: Calendar },
+              { label: 'Joins This Week', value: stats.joinsThisWeek, icon: TrendingUp },
             ].map(item => (
-              <div key={item.label} className="bg-slate-800/60 border border-slate-700/50 rounded-2xl p-5">
-                <item.icon className={`w-5 h-5 ${item.color} mb-3`} />
+              <div key={item.label} className="p-5 rounded-2xl" style={cardStyle}>
+                <item.icon className="w-5 h-5 mb-3" style={{ color: '#c9a96e' }} />
                 <div
-                  className="text-2xl font-extrabold text-white"
-                  style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+                  className="text-2xl font-bold"
+                  style={{ fontFamily: "'Playfair Display', serif", color: '#c9a96e' }}
                 >
                   {item.value}
                 </div>
-                <div className="text-slate-400 text-sm mt-1">{item.label}</div>
+                <div className="text-sm mt-1" style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}>
+                  {item.label}
+                </div>
               </div>
             ))}
           </div>
         )}
 
         {stats?.mostJoined && (
-          <div className="bg-blue-500/10 border border-blue-500/20 rounded-2xl p-4 mb-8 flex items-center gap-3">
-            <TrendingUp className="w-5 h-5 text-blue-400 shrink-0" />
+          <div
+            className="flex items-center gap-3 p-4 rounded-2xl mb-8"
+            style={{
+              backgroundColor: 'rgba(201,169,110,0.06)',
+              border: '1px solid rgba(201,169,110,0.2)',
+            }}
+          >
+            <TrendingUp className="w-5 h-5 shrink-0" style={{ color: '#c9a96e' }} />
             <div>
-              <span className="text-slate-400 text-sm">Most joined group: </span>
-              <span className="text-white font-semibold">{stats.mostJoined.group_name}</span>
-              <span className="text-slate-400 text-sm"> — {stats.mostJoined.count} joins</span>
+              <span className="text-sm" style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}>
+                Most joined group:{' '}
+              </span>
+              <span className="font-semibold" style={{ color: '#f0e6d3', fontFamily: "'DM Sans', sans-serif" }}>
+                {stats.mostJoined.group_name}
+              </span>
+              <span className="text-sm" style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}>
+                {' '}— {stats.mostJoined.count} joins
+              </span>
             </div>
           </div>
         )}
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6 border-b border-slate-800 pb-0">
-          {(['overview', 'joins', 'groups'] as const).map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 text-sm font-medium capitalize border-b-2 -mb-px transition-colors duration-200 ${
-                activeTab === tab
-                  ? 'text-blue-400 border-blue-400'
-                  : 'text-slate-400 border-transparent hover:text-white'
-              }`}
-            >
-              {tab === 'overview' ? 'Overview' : tab === 'joins' ? `Join Logs (${joinLogs.length})` : `Groups (${groups.length})`}
-            </button>
-          ))}
+        <div
+          className="flex gap-0 mb-6"
+          style={{ borderBottom: '1px solid #3d3020' }}
+        >
+          {(['overview', 'joins', 'groups'] as const).map(tab => {
+            const isActive = activeTab === tab
+            const label = tab === 'overview' ? 'Overview'
+              : tab === 'joins' ? `Join Logs (${joinLogs.length})`
+              : `Groups (${groups.length})`
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className="px-4 py-2.5 text-sm border-b-2 -mb-px transition-all duration-200"
+                style={{
+                  borderBottomColor: isActive ? '#c9a96e' : 'transparent',
+                  color: isActive ? '#c9a96e' : '#8a7560',
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: isActive ? 500 : 400,
+                  background: 'none',
+                }}
+              >
+                {label}
+              </button>
+            )
+          })}
         </div>
+
+        {/* Overview tab */}
+        {activeTab === 'overview' && (
+          <div
+            className="text-center py-12"
+            style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}
+          >
+            <p>
+              Select{' '}
+              <strong style={{ color: '#e8d5b0' }}>Join Logs</strong>
+              {' '}or{' '}
+              <strong style={{ color: '#e8d5b0' }}>Groups</strong>
+              {' '}tabs to manage data.
+            </p>
+          </div>
+        )}
 
         {/* Join Logs */}
         {activeTab === 'joins' && (
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-white" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              <h2
+                className="text-lg font-bold"
+                style={{ fontFamily: "'Playfair Display', serif", color: '#e8d5b0' }}
+              >
                 Join Logs
               </h2>
               <button
                 onClick={exportCSV}
-                className="flex items-center gap-2 bg-slate-700 hover:bg-slate-600 text-slate-300 text-sm px-3 py-2 rounded-xl transition-colors"
+                className="flex items-center gap-2 text-sm px-3 py-2 rounded-lg transition-colors duration-200"
+                style={{
+                  backgroundColor: '#2a2118',
+                  border: '1px solid #3d3020',
+                  color: '#8a7560',
+                  fontFamily: "'DM Sans', sans-serif",
+                }}
               >
                 <Download className="w-4 h-4" />
                 Export CSV
               </button>
             </div>
-            <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl overflow-hidden">
+            <div className="rounded-2xl overflow-hidden" style={cardStyle}>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-slate-700">
-                      <th className="text-left text-slate-400 font-medium px-4 py-3">Course</th>
-                      <th className="text-left text-slate-400 font-medium px-4 py-3">Program</th>
-                      <th className="text-left text-slate-400 font-medium px-4 py-3">Group</th>
-                      <th className="text-left text-slate-400 font-medium px-4 py-3">Platform</th>
-                      <th className="text-left text-slate-400 font-medium px-4 py-3">Joined At</th>
+                    <tr>
+                      <th style={tableHeaderStyle}>Course</th>
+                      <th style={tableHeaderStyle}>Program</th>
+                      <th style={tableHeaderStyle}>Group</th>
+                      <th style={tableHeaderStyle}>Platform</th>
+                      <th style={tableHeaderStyle}>Joined At</th>
                     </tr>
                   </thead>
                   <tbody>
                     {joinLogs.map(log => (
-                      <tr key={log.id} className="border-b border-slate-800 hover:bg-slate-800/40">
-                        <td className="px-4 py-3 text-white">{log.course_title}</td>
-                        <td className="px-4 py-3">
-                          <span className="bg-blue-500/10 text-blue-400 text-xs px-2 py-0.5 rounded-full">
+                      <tr
+                        key={log.id}
+                        className="transition-colors duration-150 hover:bg-[#2a2118]"
+                      >
+                        <td style={tableCellStyle}>{log.course_title}</td>
+                        <td style={{ ...tableCellStyle }}>
+                          <span
+                            className="text-xs px-2 py-0.5 rounded-full"
+                            style={{
+                              backgroundColor: 'rgba(201,169,110,0.1)',
+                              color: '#c9a96e',
+                              fontFamily: "'DM Sans', sans-serif",
+                            }}
+                          >
                             {log.program_code}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-slate-300">{log.group_name}</td>
-                        <td className="px-4 py-3">
-                          <span className="bg-emerald-500/10 text-emerald-400 text-xs px-2 py-0.5 rounded-full">
+                        <td style={{ ...tableCellStyle, color: '#8a7560' }}>{log.group_name}</td>
+                        <td style={tableCellStyle}>
+                          <span
+                            className="text-xs px-2 py-0.5 rounded-full"
+                            style={{
+                              backgroundColor: 'rgba(74,122,90,0.15)',
+                              color: '#a0d4b0',
+                              fontFamily: "'DM Sans', sans-serif",
+                            }}
+                          >
                             {log.platform}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-slate-400">
+                        <td style={{ ...tableCellStyle, color: '#8a7560' }}>
                           {new Date(log.joined_at).toLocaleString()}
                         </td>
                       </tr>
                     ))}
                     {joinLogs.length === 0 && (
                       <tr>
-                        <td colSpan={5} className="text-center text-slate-500 py-10">
+                        <td
+                          colSpan={5}
+                          className="text-center py-10"
+                          style={{ color: '#5a4a38', fontFamily: "'DM Sans', sans-serif" }}
+                        >
                           No join logs yet
                         </td>
                       </tr>
@@ -307,38 +447,57 @@ export default function AdminPageClient() {
         {/* Groups */}
         {activeTab === 'groups' && (
           <div>
-            <h2 className="text-lg font-bold text-white mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <h2
+              className="text-lg font-bold mb-4"
+              style={{ fontFamily: "'Playfair Display', serif", color: '#e8d5b0' }}
+            >
               All Groups
             </h2>
-            <div className="bg-slate-800/60 border border-slate-700/50 rounded-2xl overflow-hidden">
+            <div className="rounded-2xl overflow-hidden" style={cardStyle}>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-slate-700">
-                      <th className="text-left text-slate-400 font-medium px-4 py-3">Group Name</th>
-                      <th className="text-left text-slate-400 font-medium px-4 py-3">Course</th>
-                      <th className="text-left text-slate-400 font-medium px-4 py-3">Platform</th>
-                      <th className="text-left text-slate-400 font-medium px-4 py-3">Created</th>
-                      <th className="text-left text-slate-400 font-medium px-4 py-3">Actions</th>
+                    <tr>
+                      <th style={tableHeaderStyle}>Group Name</th>
+                      <th style={tableHeaderStyle}>Course</th>
+                      <th style={tableHeaderStyle}>Platform</th>
+                      <th style={tableHeaderStyle}>Created</th>
+                      <th style={tableHeaderStyle}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {groups.map(group => (
-                      <tr key={group.id} className="border-b border-slate-800 hover:bg-slate-800/40">
-                        <td className="px-4 py-3 text-white font-medium">{group.group_name}</td>
-                        <td className="px-4 py-3 text-slate-300">{group.course_title ?? '—'}</td>
-                        <td className="px-4 py-3">
-                          <span className="bg-emerald-500/10 text-emerald-400 text-xs px-2 py-0.5 rounded-full">
+                      <tr
+                        key={group.id}
+                        className="transition-colors duration-150 hover:bg-[#2a2118]"
+                      >
+                        <td style={{ ...tableCellStyle, fontWeight: 500 }}>{group.group_name}</td>
+                        <td style={{ ...tableCellStyle, color: '#8a7560' }}>{group.course_title ?? '—'}</td>
+                        <td style={tableCellStyle}>
+                          <span
+                            className="text-xs px-2 py-0.5 rounded-full"
+                            style={{
+                              backgroundColor: 'rgba(74,122,90,0.15)',
+                              color: '#a0d4b0',
+                              fontFamily: "'DM Sans', sans-serif",
+                            }}
+                          >
                             {group.platform}
                           </span>
                         </td>
-                        <td className="px-4 py-3 text-slate-400">
+                        <td style={{ ...tableCellStyle, color: '#8a7560' }}>
                           {new Date(group.created_at).toLocaleDateString()}
                         </td>
-                        <td className="px-4 py-3">
+                        <td style={tableCellStyle}>
                           <button
                             onClick={() => handleDeleteGroup(group.id)}
-                            className="text-red-400 hover:text-red-300 p-1 rounded-lg hover:bg-red-500/10 transition-colors"
+                            className="p-1.5 rounded-lg transition-colors duration-150"
+                            style={{
+                              backgroundColor: 'rgba(122,74,74,0.15)',
+                              color: '#d4a0a0',
+                            }}
+                            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(122,74,74,0.3)')}
+                            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(122,74,74,0.15)')}
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -347,7 +506,11 @@ export default function AdminPageClient() {
                     ))}
                     {groups.length === 0 && (
                       <tr>
-                        <td colSpan={5} className="text-center text-slate-500 py-10">
+                        <td
+                          colSpan={5}
+                          className="text-center py-10"
+                          style={{ color: '#5a4a38', fontFamily: "'DM Sans', sans-serif" }}
+                        >
                           No groups yet
                         </td>
                       </tr>
@@ -356,13 +519,6 @@ export default function AdminPageClient() {
                 </table>
               </div>
             </div>
-          </div>
-        )}
-
-        {/* Overview tab */}
-        {activeTab === 'overview' && (
-          <div className="text-slate-400 text-center py-10">
-            <p>Select <strong className="text-slate-200">Join Logs</strong> or <strong className="text-slate-200">Groups</strong> tabs to manage data.</p>
           </div>
         )}
       </div>

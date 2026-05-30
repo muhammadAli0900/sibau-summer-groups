@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Search, X, ChevronRight } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import Link from 'next/link'
+import { getProgramColor } from '@/lib/programColors'
 
 type SearchResult = {
   id: string
@@ -24,7 +25,6 @@ export default function HeroSearch() {
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  // Close on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -35,7 +35,6 @@ export default function HeroSearch() {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  // Debounced search
   useEffect(() => {
     if (query.trim().length < 2) {
       setResults([])
@@ -56,7 +55,6 @@ export default function HeroSearch() {
     return () => clearTimeout(timer)
   }, [query])
 
-  // Group results by program
   const grouped: Record<string, SearchResult[]> = {}
   for (const r of results) {
     if (!grouped[r.program_code]) grouped[r.program_code] = []
@@ -68,20 +66,35 @@ export default function HeroSearch() {
     <div ref={containerRef} className="relative w-full max-w-2xl mx-auto">
       {/* Search input */}
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+        <Search
+          className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 pointer-events-none"
+          style={{ color: '#5a4a38' }}
+        />
         <input
           ref={inputRef}
           type="text"
           value={query}
           onChange={e => setQuery(e.target.value)}
-          onFocus={() => results.length > 0 && setOpen(true)}
+          onFocus={e => {
+            if (results.length > 0) setOpen(true)
+            e.target.style.borderColor = '#c9a96e'
+          }}
+          onBlur={e => (e.target.style.borderColor = query ? '#4a3a28' : '#3d3020')}
           placeholder="Search courses by name or code... e.g. CS102, Programming"
-          className="w-full bg-slate-800/80 border border-slate-700 rounded-xl pl-12 pr-10 py-4 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all duration-200 text-base min-h-[56px]"
+          className="w-full rounded-xl pl-12 pr-10 py-4 text-base transition-all duration-200 outline-none"
+          style={{
+            backgroundColor: '#231c15',
+            border: `1px solid ${open || query ? '#4a3a28' : '#3d3020'}`,
+            color: '#f0e6d3',
+            fontFamily: "'DM Sans', sans-serif",
+            minHeight: 56,
+          }}
         />
         {query && (
           <button
             onClick={() => { setQuery(''); setResults([]); setOpen(false) }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 transition-opacity opacity-60 hover:opacity-100"
+            style={{ color: '#8a7560' }}
           >
             <X className="w-4 h-4" />
           </button>
@@ -90,79 +103,92 @@ export default function HeroSearch() {
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-slate-900 border border-slate-700/80 rounded-xl shadow-2xl shadow-black/60 z-[9999] max-h-[380px] overflow-y-auto">
-          {/* Loading */}
+        <div
+          className="absolute top-full left-0 right-0 mt-2 rounded-xl z-[9999] max-h-[380px] overflow-y-auto"
+          style={{
+            backgroundColor: '#231c15',
+            border: '1px solid #4a3a28',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+          }}
+        >
           {loading && (
-            <div className="p-4 text-center text-slate-400 text-sm">Searching...</div>
+            <div
+              className="p-4 text-center text-sm"
+              style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}
+            >
+              Searching...
+            </div>
           )}
 
-          {/* Empty state */}
           {!loading && query.length >= 2 && results.length === 0 && (
             <div className="py-10 px-6 text-center">
-              <Search className="w-10 h-10 mx-auto mb-3 text-slate-600" />
-              <p className="text-white font-semibold text-base">No results for &ldquo;{query}&rdquo;</p>
-              <p className="text-slate-500 text-sm mt-1.5">Try searching by course code e.g. CS102</p>
+              <Search className="w-10 h-10 mx-auto mb-3 opacity-20" style={{ color: '#8a7560' }} />
+              <p className="text-base font-semibold" style={{ color: '#f0e6d3', fontFamily: "'DM Sans', sans-serif" }}>
+                No courses found for &ldquo;{query}&rdquo;
+              </p>
+              <p className="text-sm mt-1.5" style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}>
+                Try searching by course code e.g. CS102
+              </p>
             </div>
           )}
 
-          {/* Grouped results */}
-          {!loading && groupEntries.map(([programCode, courses], groupIdx) => (
-            <div key={programCode}>
-              {/* Thin divider between program groups */}
-              {groupIdx > 0 && (
-                <div className="mx-3 border-t border-slate-800" />
-              )}
-              {/* Program label */}
-              <div className="px-4 pt-2.5 pb-1 flex items-center gap-2">
-                <div
-                  className="w-2 h-2 rounded-full shrink-0"
-                  style={{ backgroundColor: courses[0].program_color }}
-                />
-                <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                  {courses[0].program_name}
-                </span>
-              </div>
-              {/* Course rows */}
-              {courses.map(course => (
-                <Link
-                  key={course.id}
-                  href={`/course/${course.id}`}
-                  onClick={() => { setOpen(false); setQuery('') }}
-                  className="flex items-center gap-3 px-4 py-2.5 hover:bg-slate-800/70 transition-colors duration-150 min-h-[44px]"
-                >
-                  {/* Program color badge */}
-                  <div
-                    className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold shrink-0"
-                    style={{ backgroundColor: `${course.program_color}20`, color: course.program_color }}
+          {!loading && groupEntries.map(([programCode, courses], groupIdx) => {
+            const color = getProgramColor(programCode, courses[0].program_color)
+            return (
+              <div key={programCode}>
+                {groupIdx > 0 && (
+                  <div style={{ margin: '0 12px', borderTop: '1px solid #3d3020' }} />
+                )}
+                <div className="px-4 pt-2.5 pb-1 flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                  <span
+                    className="text-[11px] font-semibold uppercase tracking-wider"
+                    style={{ color: '#5a4a38', fontFamily: "'DM Sans', sans-serif" }}
                   >
-                    {course.program_code.slice(0, 2).toUpperCase()}
-                  </div>
-                  {/* Course info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="text-white text-sm font-semibold truncate">{course.title}</div>
-                    <div className="text-slate-500 text-xs mt-0.5">
-                      {course.code}
-                      {course.semester_number ? ` · Sem ${course.semester_number}` : ''}
-                      {' · '}
-                      {course.program_name}
+                    {courses[0].program_name}
+                  </span>
+                </div>
+                {courses.map(course => (
+                  <Link
+                    key={course.id}
+                    href={`/course/${course.id}`}
+                    onClick={() => { setOpen(false); setQuery('') }}
+                    className="flex items-center gap-3 px-4 py-2.5 transition-colors duration-150 min-h-[44px] hover:bg-[#2a2118]"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div
+                        className="text-sm font-medium truncate"
+                        style={{ color: '#f0e6d3', fontFamily: "'DM Sans', sans-serif" }}
+                      >
+                        {course.title}
+                      </div>
+                      <div
+                        className="text-xs mt-0.5"
+                        style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}
+                      >
+                        {course.code}
+                        {course.semester_number ? ` · Sem ${course.semester_number}` : ''}
+                      </div>
                     </div>
-                  </div>
-                  {/* Group count */}
-                  <div className="shrink-0">
-                    {course.group_count > 0 ? (
-                      <span className="text-xs bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded-full">
-                        {course.group_count} {course.group_count === 1 ? 'group' : 'groups'}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-slate-600">no groups</span>
-                    )}
-                  </div>
-                  <ChevronRight className="w-3.5 h-3.5 text-slate-600 shrink-0 ml-1" />
-                </Link>
-              ))}
-              {groupIdx < groupEntries.length - 1 && <div className="pb-1" />}
-            </div>
-          ))}
+                    <div className="shrink-0">
+                      {course.group_count > 0 ? (
+                        <span
+                          className="text-xs"
+                          style={{ color: '#c9a96e', fontFamily: "'DM Sans', sans-serif" }}
+                        >
+                          {course.group_count} {course.group_count === 1 ? 'group' : 'groups'}
+                        </span>
+                      ) : (
+                        <span className="text-xs" style={{ color: '#5a4a38', fontFamily: "'DM Sans', sans-serif" }}>
+                          no groups
+                        </span>
+                      )}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )
+          })}
         </div>
       )}
     </div>

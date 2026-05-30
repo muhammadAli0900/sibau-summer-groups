@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import ToastProvider from "@/components/ToastProvider";
+import AnnouncementBanner from "@/components/AnnouncementBanner";
 
 export const metadata: Metadata = {
   title: "SIBAU Summer Course Groups | Sukkur IBA University",
@@ -15,15 +16,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="h-full">
-      <body className="min-h-full flex flex-col bg-[#0f172a] text-slate-100">
+      <body className="min-h-full flex flex-col" style={{ backgroundColor: '#1a1410', color: '#f0e6d3' }}>
         <ToastProvider>
+          <AnnouncementBanner />
           <Navbar />
           <main className="flex-1">
             {children}
           </main>
-          <footer className="border-t border-slate-800 py-6 text-center text-slate-500 text-sm">
-            <p>SIBAU Summer Course Groups &mdash; Sukkur IBA University</p>
-            <p className="mt-1 text-xs">Find your course. Join the group. Hit the 5-student threshold. Register together.</p>
+          <footer style={{ backgroundColor: '#231c15', borderTop: '1px solid #3d3020' }} className="py-6 text-center">
+            <p style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }} className="text-sm">
+              SIBAU Summer Groups &mdash; Summer 2026
+            </p>
+            <p style={{ color: '#5a4a38', fontFamily: "'DM Sans', sans-serif" }} className="text-xs mt-1">
+              Built for Sukkur IBA University students
+            </p>
           </footer>
         </ToastProvider>
       </body>
