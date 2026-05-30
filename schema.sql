@@ -70,6 +70,26 @@ CREATE POLICY "Public insert join_logs" ON join_logs FOR INSERT WITH CHECK (true
 CREATE POLICY "Public delete groups" ON groups FOR DELETE USING (true);
 
 -- ============================================================
+-- Course Interests
+-- ============================================================
+CREATE TABLE IF NOT EXISTS course_interests (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  course_id uuid REFERENCES courses(id) ON DELETE CASCADE,
+  course_name_manual text,
+  cms_id text NOT NULL,
+  created_at timestamptz DEFAULT now()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS unique_interest
+ON course_interests(course_id, cms_id);
+
+CREATE INDEX IF NOT EXISTS idx_interests_course
+ON course_interests(course_id);
+
+ALTER TABLE course_interests ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public read course_interests" ON course_interests FOR SELECT USING (true);
+
+-- ============================================================
 -- SEED DATA
 -- ============================================================
 

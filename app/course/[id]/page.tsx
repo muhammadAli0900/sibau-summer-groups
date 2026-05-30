@@ -1,11 +1,12 @@
-import { supabase } from '@/lib/supabase'
+import { supabase, adminSupabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import CoursePageClient from './CoursePageClient'
+
+export const revalidate = 0
 
 type Props = { params: Promise<{ id: string }> }
 
 async function getCourseData(id: string) {
-  // Get this course
   const { data: course } = await supabase
     .from('courses')
     .select('*, programs(*)')
@@ -14,13 +15,11 @@ async function getCourseData(id: string) {
 
   if (!course) return null
 
-  // Find all courses with the same title across programs (shared courses)
   const { data: siblings } = await supabase
     .from('courses')
     .select('*, programs(*)')
     .eq('title', course.title)
 
-  // Get all groups for all sibling course IDs
   const siblingIds = (siblings ?? []).map(c => c.id)
   const { data: groups } = await supabase
     .from('groups')
@@ -28,7 +27,6 @@ async function getCourseData(id: string) {
     .in('course_id', siblingIds)
     .order('created_at', { ascending: false })
 
-  // Get join counts per group
   const groupIds = (groups ?? []).map(g => g.id)
   let joinCounts: Record<string, number> = {}
   if (groupIds.length > 0) {
@@ -41,11 +39,17 @@ async function getCourseData(id: string) {
     }
   }
 
+  const { count: interestCount } = await adminSupabase
+    .from('course_interests')
+    .select('id', { count: 'exact', head: true })
+    .eq('course_id', id)
+
   return {
     course,
     siblings: siblings ?? [],
     groups: groups ?? [],
     joinCounts,
+    interestCount: interestCount ?? 0,
   }
 }
 

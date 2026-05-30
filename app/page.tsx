@@ -1,10 +1,11 @@
 export const revalidate = 0
 
-import { supabase } from '@/lib/supabase'
+import { supabase, adminSupabase } from '@/lib/supabase'
 import HeroSearch from '@/components/HeroSearch'
 import ProgramCards from '@/components/ProgramCards'
 import StatsSection from '@/components/StatsSection'
 import HowItWorks from '@/components/HowItWorks'
+import TrendingCourses, { TrendingCourse } from '@/components/TrendingCourses'
 
 async function getStats() {
   const [groupsRes, coursesRes, joinsRes] = await Promise.all([
@@ -30,8 +31,59 @@ async function getPrograms() {
   return programs.map(p => ({ ...p, course_count: counts[p.id] ?? 0 }))
 }
 
+async function getTrendingCourses(): Promise<TrendingCourse[]> {
+  const { data: interests } = await adminSupabase
+    .from('course_interests')
+    .select('course_id')
+
+  if (!interests?.length) return []
+
+  const counts: Record<string, number> = {}
+  for (const i of interests) {
+    if (i.course_id) counts[i.course_id] = (counts[i.course_id] ?? 0) + 1
+  }
+
+  const top8 = Object.entries(counts)
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 8)
+
+  if (!top8.length) return []
+
+  const topIds = top8.map(([id]) => id)
+
+  const [coursesRes, groupsRes] = await Promise.all([
+    supabase.from('courses').select('id, code, title, programs(id, name, code, color)').in('id', topIds),
+    supabase.from('groups').select('course_id').in('course_id', topIds),
+  ])
+
+  const groupCounts: Record<string, number> = {}
+  for (const g of groupsRes.data ?? []) {
+    groupCounts[g.course_id] = (groupCounts[g.course_id] ?? 0) + 1
+  }
+
+  return top8.map(([courseId, count]) => {
+    const course = coursesRes.data?.find(c => c.id === courseId)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const prog: any = Array.isArray(course?.programs) ? course!.programs[0] : course?.programs
+    return {
+      course_id: courseId,
+      title: course?.title ?? '',
+      code: course?.code ?? '',
+      program_name: prog?.name ?? '',
+      program_color: prog?.color ?? '#c9a96e',
+      program_code: prog?.code ?? '',
+      interest_count: count,
+      group_count: groupCounts[courseId] ?? 0,
+    }
+  }).filter(c => c.title)
+}
+
 export default async function HomePage() {
-  const [stats, programs] = await Promise.all([getStats(), getPrograms()])
+  const [stats, programs, trending] = await Promise.all([
+    getStats(),
+    getPrograms(),
+    getTrendingCourses(),
+  ])
 
   return (
     <div>
@@ -67,6 +119,10 @@ export default async function HomePage() {
       </section>
 
       <StatsSection stats={stats} />
+
+      {/* Trending Courses (only shown if there are interests) */}
+      <TrendingCourses courses={trending} />
+
       <HowItWorks />
 
       {/* Programs */}
@@ -78,10 +134,7 @@ export default async function HomePage() {
           >
             Browse by Program
           </h2>
-          <p
-            className="text-sm mb-10"
-            style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}
-          >
+          <p className="text-sm mb-10" style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}>
             Select your program to find course groups
           </p>
           <ProgramCards programs={programs} />

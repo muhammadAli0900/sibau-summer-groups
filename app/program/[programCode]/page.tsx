@@ -1,6 +1,8 @@
-import { supabase } from '@/lib/supabase'
+import { supabase, adminSupabase } from '@/lib/supabase'
 import { notFound } from 'next/navigation'
 import ProgramPageClient from './ProgramPageClient'
+
+export const revalidate = 0
 
 type Props = { params: Promise<{ programCode: string }> }
 
@@ -20,20 +22,25 @@ async function getProgramData(code: string) {
     .order('semester_number', { ascending: true, nullsFirst: false })
     .order('code')
 
-  // Get group counts
   const courseIds = (courses ?? []).map(c => c.id)
+
   let groupCounts: Record<string, number> = {}
+  let interestCounts: Record<string, number> = {}
+
   if (courseIds.length > 0) {
-    const { data: groups } = await supabase
-      .from('groups')
-      .select('course_id')
-      .in('course_id', courseIds)
-    for (const g of groups ?? []) {
+    const [groupsRes, interestsRes] = await Promise.all([
+      supabase.from('groups').select('course_id').in('course_id', courseIds),
+      adminSupabase.from('course_interests').select('course_id').in('course_id', courseIds),
+    ])
+    for (const g of groupsRes.data ?? []) {
       groupCounts[g.course_id] = (groupCounts[g.course_id] ?? 0) + 1
+    }
+    for (const i of interestsRes.data ?? []) {
+      interestCounts[i.course_id] = (interestCounts[i.course_id] ?? 0) + 1
     }
   }
 
-  return { program, courses: courses ?? [], groupCounts }
+  return { program, courses: courses ?? [], groupCounts, interestCounts }
 }
 
 export default async function ProgramPage({ params }: Props) {

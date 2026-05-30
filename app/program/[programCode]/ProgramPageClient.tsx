@@ -11,9 +11,10 @@ type Props = {
   program: Program
   courses: Course[]
   groupCounts: Record<string, number>
+  interestCounts: Record<string, number>
 }
 
-export default function ProgramPageClient({ program, courses, groupCounts }: Props) {
+export default function ProgramPageClient({ program, courses, groupCounts, interestCounts }: Props) {
   const [activeSemester, setActiveSemester] = useState<number | 'all'>('all')
   const [addGroupCourseId, setAddGroupCourseId] = useState<string | null>(null)
 
@@ -68,10 +69,7 @@ export default function ProgramPageClient({ program, courses, groupCounts }: Pro
         </div>
 
         {/* Semester tabs */}
-        <div
-          className="flex flex-wrap gap-0 mb-8 overflow-x-auto"
-          style={{ borderBottom: '1px solid #3d3020' }}
-        >
+        <div className="flex flex-wrap gap-0 mb-8 overflow-x-auto" style={{ borderBottom: '1px solid #3d3020' }}>
           {(['all', ...semesters] as (number | 'all')[]).map(s => {
             const isActive = activeSemester === s
             return (
@@ -93,7 +91,7 @@ export default function ProgramPageClient({ program, courses, groupCounts }: Pro
           })}
         </div>
 
-        {/* Courses grouped by semester */}
+        {/* Course list */}
         {Object.entries(grouped).map(([sem, semCourses]) => (
           <div key={sem} className="mb-10">
             {activeSemester === 'all' && (
@@ -106,18 +104,15 @@ export default function ProgramPageClient({ program, courses, groupCounts }: Pro
             )}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {semCourses.map(course => {
-                const count = groupCounts[course.id] ?? 0
+                const groupCount = groupCounts[course.id] ?? 0
+                const interestCount = interestCounts[course.id] ?? 0
                 return (
                   <Link
                     key={course.id}
                     href={`/course/${course.id}`}
                     className="group flex rounded-xl overflow-hidden transition-all duration-200 hover:bg-[#2a2118] hover:border-[#4a3a28] min-h-[44px]"
-                    style={{
-                      backgroundColor: '#231c15',
-                      border: '1px solid #3d3020',
-                    }}
+                    style={{ backgroundColor: '#231c15', border: '1px solid #3d3020' }}
                   >
-                    {/* Left color strip */}
                     <div style={{ width: 3, backgroundColor: color, flexShrink: 0 }} />
                     <div className="p-4 flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
@@ -134,21 +129,22 @@ export default function ProgramPageClient({ program, courses, groupCounts }: Pro
                           >
                             {course.title}
                           </h3>
-                          <p
-                            className="text-xs mt-1.5"
-                            style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}
-                          >
+                          <p className="text-xs mt-1.5" style={{ color: '#8a7560', fontFamily: "'DM Sans', sans-serif" }}>
                             {course.credit_hours} credit hours
                           </p>
                         </div>
-                        {count > 0 && (
-                          <div
-                            className="text-xs px-2 py-0.5 rounded-full shrink-0 mt-0.5"
-                            style={{ color: '#c9a96e', fontFamily: "'DM Sans', sans-serif" }}
-                          >
-                            {count} {count === 1 ? 'group' : 'groups'}
-                          </div>
-                        )}
+                        <div className="flex flex-col items-end gap-1 shrink-0 mt-0.5">
+                          {groupCount > 0 && (
+                            <span className="text-xs" style={{ color: '#c9a96e', fontFamily: "'DM Sans', sans-serif" }}>
+                              {groupCount} {groupCount === 1 ? 'group' : 'groups'}
+                            </span>
+                          )}
+                          {interestCount > 0 && (
+                            <span className="text-xs" style={{ color: '#c9a96e', fontFamily: "'DM Sans', sans-serif" }}>
+                              🙋 {interestCount} interested
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </Link>
